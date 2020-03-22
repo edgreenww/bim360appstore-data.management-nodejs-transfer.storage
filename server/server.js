@@ -25,6 +25,8 @@ var cookieSession = require('cookie-session');
 
 var app = express();
 
+require('dotenv').config()
+
 
 // this session will be used to save the oAuth token
 app.use(cookieParser());
@@ -59,7 +61,7 @@ app.use('/js/libraries', express.static(__dirname + '/../node_modules/moment/min
 app.use('/css/libraries', express.static(__dirname + '/../node_modules/bootstrap/dist/css')); // redirect static calls
 app.use('/css/libraries/jstree', express.static(__dirname + '/../node_modules/jstree/dist/themes/default')); // redirect static calls (jstree use 'style.css', which is very generic, so let's use an extra folder)
 app.use('/css/fonts', express.static(__dirname + '/../node_modules/bootstrap/dist/fonts')); // redirect static calls
-app.set('port', process.env.PORT || 3000); // main port
+app.set('port', process.env.PORT || 5000); // main port
 
 var appSettings = require('./appSettings.js');
 app.use('/', appSettings);

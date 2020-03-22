@@ -28,6 +28,10 @@ var express = require('express');
 var router = express.Router();
 // google drive sdk: https://developers.google.com/drive/v3/web/quickstart/nodejs
 var googleSdk = require('googleapis');
+// console.log(googleSdk)
+
+// var googleAuth = require('google-auth-library')
+// var auth  = new googleAuth()
 
 var cryptiles = require('cryptiles');
 
@@ -38,7 +42,8 @@ var encoder = new Encoder('entity');
 router.get('/api/storage/signin', function (req, res) {
   req.session.csrf = cryptiles.randomString(24);
 
-  var oauth2Client = new googleSdk.auth.OAuth2(
+  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+  // var oauth2Client = auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
     config.storage.callbackURL);
@@ -65,7 +70,10 @@ router.get('/api/google/callback/oauth', function (req, res) {
 
   var code = req.query.code;
 
-  var oauth2Client = new googleSdk.auth.OAuth2(
+  
+
+  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+  // var oauth2Client = auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
     config.storage.callbackURL);
@@ -89,7 +97,9 @@ router.get('/api/storage/profile', function (req, res) {
     return;
   }
 
-  var oauth2Client = new googleSdk.auth.OAuth2(
+  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+ 
+  // var oauth2Client = auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
     config.storage.callbackURL,

@@ -25,7 +25,7 @@ var cookieSession = require('cookie-session');
 
 var app = express();
 
-require('dotenv').config()
+//require('dotenv').config()
 
 
 // this session will be used to save the oAuth token

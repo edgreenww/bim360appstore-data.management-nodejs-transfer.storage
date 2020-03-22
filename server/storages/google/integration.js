@@ -33,6 +33,7 @@ var Encoder = require('node-html-encoder').Encoder;
 var encoder = new Encoder('entity');
 
 var googleSdk = require('googleapis');
+const {google} = require('googleapis');
 
 var request = require('request');
 
@@ -46,12 +47,14 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
     return;
   }
 
-  var oauth2Client = new googleSdk.auth.OAuth2(
+  //var oauth2Client = new googleSdk.auth.OAuth2(
+  var oauth2Client =  new google.auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
     config.storage.callbackURL);
   oauth2Client.setCredentials(token.getStorageCredentials());
-  var drive = googleSdk.drive({version: 'v2', auth: oauth2Client}); // not sure why, v2 works for list, not for create
+  // var drive = googleSdk.drive({version: 'v2', auth: oauth2Client}); // not sure why, v2 works for list, not for create
+  var drive = google.drive({version: 'v3', auth: oauth2Client});
 
   var parentFolder = req.body.parentFolder;
   var folderName = encoder.htmlDecode(req.body.folderName);
@@ -62,12 +65,13 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
   }
 
   drive.files.list({
-    q: '\''+ (parentFolder==='#' ? 'root' : parentFolder ) +'\' in parents and title = \''+ folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
-    fields: 'nextPageToken, items(id,mimeType,title, iconLink)'
+    q: '\''+ (parentFolder==='#' ? 'root' : parentFolder ) +'\' in parents and name = \''+ folderName + '\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false',
+    fields: 'nextPageToken, files(id,name)'
   }, function (err, lst) {
-    if (err) console.log(err);
-    if (lst.items!=null && lst.items.length==1){
-      res.json({folderId: lst.items[0].id});
+    if (err) console.log('error here:', err);
+    console.log('lst', lst) // <-- lst is undefined
+    if (lst.data !=null && lst.data.files.length==1){  // <-- here is the problem
+      res.json({folderId: lst.files[0].id});
       return;
     }
 
@@ -80,7 +84,8 @@ router.post('/api/storage/createFolder', jsonParser, function (req, res) {
     if (parentFolder != '#')
       fileMetadata.parents = [parentFolder];
 
-    drive = googleSdk.drive({version: 'v3', auth: oauth2Client}); // not sure why, v3 works for create, not for list
+    // drive = googleSdk.drive({version: 'v3', auth: oauth2Client}); // not sure why, v3 works for create, not for list
+    drive = google.drive({version: 'v3', auth: oauth2Client});
     drive.files.create({
       resource: fileMetadata,
       fields: 'id'
@@ -163,12 +168,14 @@ router.post('/api/storage/transferFrom', jsonParser, function (req, res) {
 
     // for Google we receive the FileID, let's get info about the file
     var googleFileId = req.body.storageItem;
-    var oauth2Client = new googleSdk.auth.OAuth2(
+   //  var oauth2Client = new googleSdk.auth.OAuth2(
+    var oauth2Client =  new google.auth.OAuth2(
       config.storage.credentials.client_id,
       config.storage.credentials.client_secret,
       config.storage.callbackURL);
     oauth2Client.setCredentials(token.getStorageCredentials());
-    var drive = googleSdk.drive({version: 'v2', auth: oauth2Client});
+    // var drive = googleSdk.drive({version: 'v2', auth: oauth2Client});
+    var drive = google.drive({version: 'v3', auth: oauth2Client});
     drive.files.get({
       fileId: googleFileId
     }, function (err, fileInfo) {

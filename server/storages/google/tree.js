@@ -32,6 +32,7 @@ var express = require('express');
 var router = express.Router();
 // google drive sdk: https://developers.google.com/drive/v3/web/quickstart/nodejs
 var googleSdk = require('googleapis');
+const {google} = require('googleapis');
 
 router.get('/api/storage/tree', function (req, res) {
   var token = new Credentials(req.session);
@@ -41,12 +42,14 @@ router.get('/api/storage/tree', function (req, res) {
     return;
   }
 
-  var oauth2Client = new googleSdk.auth.OAuth2(
+   //var oauth2Client = new googleSdk.auth.OAuth2(
+  var oauth2Client =  new google.auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
     config.storage.callbackURL);
   oauth2Client.setCredentials(token.getStorageCredentials());
-  var drive = googleSdk.drive({version: 'v2', auth: oauth2Client});
+  // var drive = googleSdk.drive({version: 'v2', auth: oauth2Client});
+  var drive = google.drive({version: 'v3', auth: oauth2Client});
 
   var id = req.query.id;
 
@@ -54,6 +57,8 @@ router.get('/api/storage/tree', function (req, res) {
   // all pages and return continuously
   res.setHeader('Content-Type', 'application/json');
   res.write('[');
+  console.log(drive)
+  console.log(req)
   drivePage(res, drive, id, null, true);
 });
 
@@ -62,17 +67,18 @@ function drivePage(res, drive, folderId, npToken, first) {
   drive.files.list({
     maxResults: 1000,
     q: (folderId === '#' ? '\'root\' in parents' : '\'' + folderId + '\' in parents') + ' and trashed = false',
-    fields: 'nextPageToken, items(id,mimeType,title, iconLink)',
+    fields: 'nextPageToken, files(id, name, mimeType, iconLink)',
     pageToken: npToken
   }, function (err, lst) {
     if (err) console.log(err);
-    var items = lst.items;
+    //var items = lst.items;
+    var items = lst.data.files
 
     items.forEach(function (item) {
       var treeItem = {
         id: item.id,
         data: '',
-        text: encoder.htmlEncode(item.title),
+        text: encoder.htmlEncode(item.name),
         type: ((item.mimeType != 'application/vnd.google-apps.folder') ? item.mimeType.replace('application/', '') : 'folders'),
         icon: item.iconLink,
         children: (item.mimeType === 'application/vnd.google-apps.folder')

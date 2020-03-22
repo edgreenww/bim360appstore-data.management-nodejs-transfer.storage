@@ -28,10 +28,14 @@ var express = require('express');
 var router = express.Router();
 // google drive sdk: https://developers.google.com/drive/v3/web/quickstart/nodejs
 var googleSdk = require('googleapis');
+
+const {google} = require('googleapis');
 // console.log(googleSdk)
 
 // var googleAuth = require('google-auth-library')
 // var auth  = new googleAuth()
+
+
 
 var cryptiles = require('cryptiles');
 
@@ -42,7 +46,8 @@ var encoder = new Encoder('entity');
 router.get('/api/storage/signin', function (req, res) {
   req.session.csrf = cryptiles.randomString(24);
 
-  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+  //var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+    var oauth2Client =  new google.auth.OAuth2(
   // var oauth2Client = auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
@@ -72,7 +77,8 @@ router.get('/api/google/callback/oauth', function (req, res) {
 
   
 
-  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+  // var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+    var oauth2Client =  new google.auth.OAuth2(
   // var oauth2Client = auth.OAuth2(
     config.storage.credentials.client_id,
     config.storage.credentials.client_secret,
@@ -97,7 +103,8 @@ router.get('/api/storage/profile', function (req, res) {
     return;
   }
 
-  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+ //  var oauth2Client = new googleSdk.auth.OAuth2( // <-- old
+    var oauth2Client =  new google.auth.OAuth2(
  
   // var oauth2Client = auth.OAuth2(
     config.storage.credentials.client_id,
@@ -106,16 +113,21 @@ router.get('/api/storage/profile', function (req, res) {
     true);
   oauth2Client.setCredentials(token.getStorageCredentials());
 
-  var plus = googleSdk.plus('v1');
-  plus.people.get({userId: 'me', auth: oauth2Client}, function (err, user) {
+  // var plus = googleSdk.plus('v1');
+
+  const people = google.people('v1')
+  // console.log(people)
+  // plus.people.get({userId: 'me', auth: oauth2Client}, function (err, user) {
+  people.people.get({resourceName: 'people/me', personFields: ['names', 'metadata', 'photos'], auth: oauth2Client}, function (err, user) { 
     if (err) {
       console.log(err.message);
       res.status(500);
       return;
     }
+   // console.log(user)
     res.json({
       name: encoder.htmlEncode(user.displayName),
-      picture: user.image.url
+      picture: user.data.photos[0].url
     });
   });
 

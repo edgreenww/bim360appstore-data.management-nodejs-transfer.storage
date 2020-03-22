@@ -17,7 +17,8 @@
 /////////////////////////////////////////////////////////////////////
 
 'use strict';
-
+require('dotenv').config({path:'.env'})
+console.log(process.env)
 var app = require('./server/server');
 
 if (process.env.FORGE_CLIENT_ID == null || process.env.FORGE_CLIENT_SECRET == null)
@@ -29,6 +30,8 @@ if (process.env.STORAGE_NAME == null)
 if (process.env.STORAGE_CLIENT_ID == null || process.env.STORAGE_CLIENT_SECRET == null)
   console.log('*****************\nWARNING: Storage Client ID & Client Secret not defined as environment variables.\n*****************');
 
+  console.log(process.env.FORGE_CLIENT_ID)
+  console.log(process.env.FORGE_CALLBACK_URL)
 var server;
 
 console.log('Storage: ' + process.env.STORAGE_NAME);

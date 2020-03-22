@@ -19,7 +19,7 @@
     },
     "FORGE_CALLBACK_URL": {
       "description": "Callback URL of your Forge app, required for 3-legged OAuth",
-      "value": "https://<<YOUR HEROKU APP NAME HERE>>.herokuapp.com/api/forge/callback/oauth"
+      "value": "https://we-transfer-bim360.herokuapp.com/api/forge/callback/oauth"
     },
     "STORAGE_NAME": {
       "description": "Supported: Box, Dropbox, Egnyte, Google, Onedrive"
@@ -32,7 +32,7 @@
     },
     "STORAGE_CALLBACK_URL": {
       "description": "Redirect URI of your storage app, required for 3-legged OAuth",
-      "value": "https://<<YOUR HEROKU APP NAME HERE>>.herokuapp.com/api/<<STORAGE NAME>>/callback/oauth"
+      "value": "https://we-transfer-bim360.herokuapp.herokuapp.com/api/<<STORAGE NAME>>/callback/oauth"
     },
     "STORAGE_NEEDS_ACCOUNT_NAME":{
       "description": "Default account name (Egnyte only)",
